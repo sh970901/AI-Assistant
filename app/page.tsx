@@ -1,10 +1,7 @@
-'use client';
- 
-import { useChat } from 'ai/react';
 import { ChatWindow } from "@/components/ChatWindow";
- 
-export default function Chat() {
-    const InfoCard = (
+
+export default function Home() {
+  const InfoCard = (
     <div className="p-4 md:p-8 rounded bg-[#25252d] w-full max-h-[85%] overflow-hidden">
       <h1 className="text-3xl md:text-4xl mb-4">
         ▲ Next.js + LangChain.js 🦜🔗
@@ -71,9 +68,8 @@ export default function Chat() {
       </ul>
     </div>
   );
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
- 
   return (
+    <>
     <div className="mx-auto w-full max-w-md py-24 flex flex-col stretch">
       {/* {messages.map(m => (
         <div key={m.id}>
@@ -93,13 +89,16 @@ export default function Chat() {
         </label>
         <button type="submit">Send</button>
       </form> */}
+    </div>
+    
     <ChatWindow
       endpoint="api/chat"
       emoji="🏴‍☠️"
-      titleText="Developer"
+      titleText="Patchy the Chatty Pirate"
       placeholder="I'm an LLM pretending to be a pirate! Ask me about the pirate life!"
       emptyStateComponent={InfoCard}
     ></ChatWindow>
-    </div>
+    </>
+    
   );
 }
