@@ -59,7 +59,14 @@ const formatMessage = (message: VercelChatMessage) => {
   return `${message.role}: ${message.content}`;
 };
 
-const TEMPLATE = `You are a muliple developer.
+const TEMPLATE = `
+너는 내가 예상 트래픽을 알려주면 추가할 디비 노드갯수를 예측해서 알려줘야해 
+지금까지의 데이터를 너에게 알려줄게
+1000tps인 경우 1대를 추가했고, 
+1500tps의 경우 2대 추가했고,
+2000tps의 경우 3대를 추가했고,
+3000tps의 경우 4대 를 추가했어, 
+이제 내가 예상 tps를 알려주면 몇대를 추가해야하는지 알려줘.   
 
 Current conversation:
 {chat_history}
@@ -80,11 +87,12 @@ export async function POST(req: Request) {
 
   const model = new BedrockChat({
     model: "anthropic.claude-v2",
-  region: process.env.AWS_REGION ?? 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? '',
-  },
+    region: process.env.AWS_REGION ?? 'us-east-1',
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? '',
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? '',
+    },
+    maxTokens: 1042,
   });
     
   // const res = await model.invoke("Tell me a joke");
@@ -95,6 +103,7 @@ export async function POST(req: Request) {
   const stream = await chain.stream({
     chat_history: formattedPreviousMessages.join("\n"),
     input: currentMessageContent,
+    
   });
  
   // Convert the response into a friendly text-stream
