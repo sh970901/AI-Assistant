@@ -3,7 +3,7 @@ import { Message as VercelChatMessage, StreamingTextResponse } from "ai";
 
 import { createClient } from "@supabase/supabase-js";
 
-import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+// import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
 import { Document } from "@langchain/core/documents";
@@ -12,6 +12,9 @@ import {
   BytesOutputParser,
   StringOutputParser,
 } from "@langchain/core/output_parsers";
+import { BedrockChat } from "@langchain/community/chat_models/bedrock/web";
+import {BedrockEmbeddings} from "@langchain/community/embeddings/bedrock";
+import { BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime";
 
 export const runtime = "edge";
 
@@ -74,16 +77,41 @@ export async function POST(req: NextRequest) {
     const previousMessages = messages.slice(0, -1);
     const currentMessageContent = messages[messages.length - 1].content;
 
-    const model = new ChatOpenAI({
-      modelName: "gpt-3.5-turbo-1106",
-      temperature: 0.2,
+    const model = new BedrockChat({
+      model: "anthropic.claude-v2",
+      region: process.env.AWS_REGION ?? 'us-east-1',
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? '',
+      },
+      maxTokens: 1042,
     });
 
     const client = createClient(
       process.env.SUPABASE_URL!,
       process.env.SUPABASE_PRIVATE_KEY!,
     );
-    const vectorstore = new SupabaseVectorStore(new OpenAIEmbeddings(), {
+
+    const bedRockRuntimeclient = new BedrockRuntimeClient({
+      region: "us-east-1",
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? '',
+      },
+      
+    });
+
+    const embeddings = new BedrockEmbeddings({
+      client: bedRockRuntimeclient,
+      region: process.env.BEDROCK_AWS_REGION ?? '',
+      credentials: {
+        accessKeyId: process.env.BEDROCK_AWS_ACCESS_KEY_ID ?? '',
+        secretAccessKey: process.env.BEDROCK_AWS_SECRET_ACCESS_KEY ?? '',
+      },
+      model: "amazon.titan-embed-text-v1",
+    });
+
+    const vectorstore = new SupabaseVectorStore(embeddings, {
       client,
       tableName: "documents",
       queryName: "match_documents",

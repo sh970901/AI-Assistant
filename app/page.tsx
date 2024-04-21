@@ -95,7 +95,7 @@ export default function Home() {
       endpoint="api/chat"
       emoji="🏴‍☠️"
       titleText="🇿🇲"
-      placeholder="I'm an LLM pretending to be a pirate! Ask me about the pirate life!"
+      placeholder="I'm AI-Assistan For SH "
       emptyStateComponent={InfoCard}
     ></ChatWindow>
     </>
